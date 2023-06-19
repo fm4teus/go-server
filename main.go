@@ -24,6 +24,11 @@ func generateFileLinks() string {
 	links := []string{}
 
 	for _, file := range files {
+		if file.IsDir() {
+			link := fmt.Sprintf("<a href=\"/%s\">%s</a>", file.Name(), file.Name())
+			links = append(links, link)
+			continue
+		}
 		//filePath := fmt.Sprintf("%s/%s", DIRECTORY, file.Name())
 		link := fmt.Sprintf("<a href=\"/download?file=%s\">%s</a>", file.Name(), file.Name())
 		links = append(links, link)
@@ -33,11 +38,11 @@ func generateFileLinks() string {
 }
 
 func handleRequest(request string) []byte {
-	// Lida com a requisição recebida e retorna uma resposta.
-	if strings.HasPrefix(request, "GET / HTTP/1.1") {
+	switch {
+	case strings.HasPrefix(request, "GET / HTTP/1.1"):
 		response := fmt.Sprintf("HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n%s", generateFileLinks())
 		return []byte(response)
-	} else if strings.HasPrefix(request, "GET /download?file=") {
+	case strings.HasPrefix(request, "GET /download?file="):
 		fileName := strings.Split(request, "=")[1]
 		filePath := fmt.Sprintf("%s/%s", DIRECTORY, fileName)
 
@@ -60,9 +65,9 @@ func handleRequest(request string) []byte {
 		} else {
 			return []byte("HTTP/1.1 404 Not Found\r\nContent-Type: text/html\r\n\r\nFile not found.")
 		}
-	} else if strings.HasPrefix(request, "GET /HEADER") {
+	case strings.HasPrefix(request, "GET /HEADER"):
 		return []byte(fmt.Sprintf("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n%s", request))
-	} else {
+	default:
 		return []byte("HTTP/1.1 404 Not Found\r\nContent-Type: text/html\r\n\r\nNot Found.")
 	}
 }
