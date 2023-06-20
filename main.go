@@ -9,9 +9,9 @@ import (
 )
 
 const (
-	HOST      = "localhost"                                    // Endereço IP do servidor
-	PORT      = 8000                                           // Porta que o servidor irá ouvir
-	DIRECTORY = "/home/fmateus/Pictures/server-example-files/" // Diretório a ser listado
+	HOST      = "localhost"                                                    // Endereço IP do servidor
+	PORT      = 8080                                                           // Porta que o servidor irá ouvir
+	DIRECTORY = "/home/fmateus411/fmateus411/Documentos/server-example-files/" // Diretório a ser listado
 )
 
 var (
