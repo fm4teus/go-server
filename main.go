@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"regexp"
 	"strings"
 )
 
@@ -13,9 +14,80 @@ const (
 	DIRECTORY = "/home/fmateus/Documents/" // Diretório a ser listado
 )
 
-func generateFileLinks() string {
+var (
+	directoryRegex = regexp.MustCompile(`^GET /([A-Za-z0-9\-/]+)* HTTP/1\.1`)
+	downloadRegex  = regexp.MustCompile(`^GET /([A-Za-z0-9\-/]+)*download\?file\=`)
+)
+
+func renderHTMLContent(content string) string {
+	template := `
+	<!DOCTYPE html>
+	<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Go Server</title>
+		<style>
+			body {
+				background-color: #f1f1f1;
+				font-family: Arial, sans-serif;
+			}
+			
+			h1 {
+				color: #333;
+			}
+			
+			p {
+				color: #666;
+			}
+
+
+			ul {
+				list-style-type: none;
+				padding: 0;
+			}
+			
+			li {
+				margin-bottom: 5px;
+			}
+			
+			a {
+				color: #000;
+				text-decoration: none;
+				transition: color 0.3s ease;
+			}
+			
+			a:hover {
+				color: #ff0000;
+			}
+
+			.container {
+				max-width: 800px;
+				margin: 0 auto;
+				padding: 20px;
+				background-color: #fff;
+			}
+
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<h1>Go Server</h1>
+			<p>Este é um servidor de arquivos simples.</p>
+			<p>Escrito em Go sem o uso da biblioteca http nativa.</p>
+			<ul>
+			%s
+			</ul>
+		</div>
+	</body>
+	</html>
+	`
+
+	return fmt.Sprintf(template, content)
+}
+
+func generateFileLinks(subdir string) string {
 	// Gera os links para os arquivos no diretório especificado.
-	files, err := os.ReadDir(DIRECTORY)
+	files, err := os.ReadDir(DIRECTORY + subdir)
 	if err != nil {
 		fmt.Println(err)
 		return ""
@@ -25,26 +97,43 @@ func generateFileLinks() string {
 
 	for _, file := range files {
 		if file.IsDir() {
-			link := fmt.Sprintf("<a href=\"/%s\">%s</a>", file.Name(), file.Name())
+			link := fmt.Sprintf("<li><a href=\"%s/%s\">%s</a></li>", subdir, file.Name(), file.Name())
 			links = append(links, link)
 			continue
 		}
 		//filePath := fmt.Sprintf("%s/%s", DIRECTORY, file.Name())
-		link := fmt.Sprintf("<a href=\"/download?file=%s\">%s</a>", file.Name(), file.Name())
+		link := fmt.Sprintf("<li><a href=\"/%s/download?file=%s\">⬇️ %s</a></li>", subdir, file.Name(), file.Name())
 		links = append(links, link)
 	}
 
-	return strings.Join(links, "\n")
+	return renderHTMLContent(strings.Join(links, "\n"))
 }
 
 func handleRequest(request string) []byte {
 	switch {
-	case strings.HasPrefix(request, "GET / HTTP/1.1"):
-		response := fmt.Sprintf("HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n%s", generateFileLinks())
+	case regexp.MustCompile(`^GET /HEADER`).MatchString(request):
+		return []byte(fmt.Sprintf("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n%s", request))
+	case directoryRegex.MatchString(request):
+
+		subdir := "/"
+		sm := directoryRegex.FindStringSubmatch(request)
+		if len(sm) > 1 {
+			subdir = sm[1]
+		}
+
+		response := fmt.Sprintf("HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n%s", generateFileLinks(subdir))
 		return []byte(response)
-	case strings.HasPrefix(request, "GET /download?file="):
-		fileName := strings.Split(request, "=")[1]
-		filePath := fmt.Sprintf("%s/%s", DIRECTORY, fileName)
+	case downloadRegex.MatchString(request):
+		subdir := "/"
+		sm := downloadRegex.FindStringSubmatch(request)
+		fmt.Println("sm: ", sm)
+		if len(sm) > 1 {
+			subdir = sm[1]
+		}
+		fileName := strings.Split(strings.Split(request, "=")[1], " HTTP/1.1")[0]
+		filePath := fmt.Sprintf("%s%s%s", DIRECTORY, subdir, fileName)
+
+		fmt.Println("path: {", filePath, "}")
 
 		if fileInfo, err := os.Stat(filePath); err == nil && !fileInfo.IsDir() {
 			file, err := os.Open(filePath)
@@ -65,8 +154,6 @@ func handleRequest(request string) []byte {
 		} else {
 			return []byte("HTTP/1.1 404 Not Found\r\nContent-Type: text/html\r\n\r\nFile not found.")
 		}
-	case strings.HasPrefix(request, "GET /HEADER"):
-		return []byte(fmt.Sprintf("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n%s", request))
 	default:
 		return []byte("HTTP/1.1 404 Not Found\r\nContent-Type: text/html\r\n\r\nNot Found.")
 	}
@@ -113,7 +200,6 @@ func handleConnection(conn net.Conn) {
 	request := string(buffer[:n])
 	response := handleRequest(request)
 
-	fmt.Println(response)
 	if _, err := conn.Write(response); err != nil {
 		fmt.Println(err)
 	}
