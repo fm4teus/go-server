@@ -9,9 +9,9 @@ import (
 )
 
 const (
-	HOST      = "localhost"                // Endereço IP do servidor
-	PORT      = 8000                       // Porta que o servidor irá ouvir
-	DIRECTORY = "/home/fmateus/Documents/" // Diretório a ser listado
+	HOST      = "localhost"                                    // Endereço IP do servidor
+	PORT      = 8000                                           // Porta que o servidor irá ouvir
+	DIRECTORY = "/home/fmateus/Pictures/server-example-files/" // Diretório a ser listado
 )
 
 var (
@@ -71,7 +71,10 @@ func renderHTMLContent(content string) string {
 	</head>
 	<body>
 		<div class="container">
-			<h1>Go Server</h1>
+			<div style="display: flex; align-items: center;">
+				<img src="https://raw.githubusercontent.com/betandr/gophers/master/Gopher.png" alt="Gopher" style="width: 50px; height: 66px;">
+				<h1 style="margin-left: 10px;">Go Server</h1>
+			</div>
 			<p>Este é um servidor de arquivos simples.</p>
 			<p>Escrito em Go sem o uso da biblioteca http nativa.</p>
 			<ul>
