@@ -2,8 +2,7 @@
 
 Este é um servidor de arquivos simples escrito em Go, que permite listar e fazer download de arquivos de um diretório especificado. O servidor foi implementado sem o uso da biblioteca http nativa do Go.
 
-![image](https://github.com/fm4teus/go-server/assets/55215503/e720d81a-ed24-4ae5-b585-b03537985e6a)
-
+![image](https://github.com/fm4teus/go-server/assets/55215503/ab3d6f98-c786-4361-abfb-5b0de0ad03d4)
 
 ## Funcionalidades
 
