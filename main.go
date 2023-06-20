@@ -100,7 +100,7 @@ func generateFileLinks(subdir string) string {
 
 	for _, file := range files {
 		if file.IsDir() {
-			link := fmt.Sprintf("<li><a href=\"%s/%s\">%s</a></li>", subdir, file.Name(), file.Name())
+			link := fmt.Sprintf("<li><a href=\"%s/%s\">📁 %s</a></li>", subdir, file.Name(), file.Name())
 			links = append(links, link)
 			continue
 		}
