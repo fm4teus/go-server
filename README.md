@@ -25,25 +25,24 @@ Neste código, são utilizados alguns conceitos de redes de computadores. Abaixo
 
 ## Execução do Servidor
 
-Para executar o servidor, siga as instruções abaixo:
-
-1. Certifique-se de ter o Go instalado na sua máquina.
-2. Copie o código apresentado para um arquivo chamado `server.go`.
-3. No código, você pode ajustar as constantes `HOST`, `PORT` e `DIRECTORY` para personalizar as configurações do servidor.
-4. Abra o terminal e navegue até o diretório onde o arquivo `server.go` está localizado.
-5. Execute o seguinte comando para compilar e executar o servidor:
+Para executar o servidor:
 
 ```
-go run server.go
+./main
 ```
 
-6. O servidor será iniciado e começará a escutar as conexões na porta especificada.
-7. Você pode acessar o servidor abrindo um navegador da web e digitando o seguinte endereço na barra de endereços:
+1. O servidor será iniciado e começará a escutar as conexões na porta especificada.
+2. Você pode acessar o servidor abrindo um navegador da web e digitando o seguinte endereço na barra de endereços:
 
 ```
 http://localhost:8000
 ```
 
+Para testar alterações, compilar e executar:
+
+```
+go run main.go
+```
 
 Lembre-se de substituir a porta se você alterou a constante `PORT` no código.
 
